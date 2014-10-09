@@ -135,7 +135,7 @@ exec { "create-vhost" :
      path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
      command => "rabbitmqctl add_vhost /sensu",
      unless => "rabbitmqctl list_vhosts | grep sensu",
-     require => File['/etc/rabbitmq/ssl'],
+     require => [ Exec['copy-keys'],Service['rabbitmq-server']],
 }
 
 exec { "add-sensu-user-in-rabbitmq" :
@@ -162,7 +162,7 @@ service { "redis-server" :
              path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
              command => "curl http://repos.sensuapp.org/apt/pubkey.gpg | apt-key add - ",
              unless => "ls /etc/apt/sources.list.d/sensu.list",
-	     require => [Package['redis-server'],File['/etc/rabbitmq/rabbitmq.config']],
+	     require => [Package['redis-server'],Exec['add-sensu-user-in-rabbitmq']],
      }
 
      exec { "add-sensu-repo" :
