@@ -55,7 +55,7 @@ service { "redis-server" :
              path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
              command => "curl http://repos.sensuapp.org/apt/pubkey.gpg | apt-key add - ",
              unless => "ls /etc/apt/sources.list.d/sensu.list",
-	     require => [Package['redis-server'],Exec['add-sensu-user-in-rabbitmq']],
+	     require => Package['redis-server'],
      }
 
      exec { "add-sensu-repo" :
