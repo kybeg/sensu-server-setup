@@ -81,7 +81,6 @@ service { "redis-server" :
      ensure => present,
      content => $SENSU_CLIENT_CONFIG,
      require => File['/etc/sensu/ssl'],
-     notify => Service['sensu-client'],
    }
    
     
