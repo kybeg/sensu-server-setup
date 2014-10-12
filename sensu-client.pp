@@ -84,8 +84,4 @@ service { "redis-server" :
      notify => Service['sensu-client'],
    }
    
-    service { "sensu-client" :
-      ensure => running,
-      require => File['/etc/sensu/conf.d/client.json'],
-      }
     
