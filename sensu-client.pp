@@ -83,4 +83,10 @@ service { "redis-server" :
      require => File['/etc/sensu/ssl'],
    }
    
+    file { "/etc/sensu/config.json" :
+       ensure => present,
+       content => $SENSU_CONFIG,
+       require => Package['sensu'],
+       notify => File['/etc/sensu/ssl'],
+    }
     
