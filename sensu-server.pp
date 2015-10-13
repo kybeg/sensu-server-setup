@@ -5,6 +5,8 @@ $RABBITMQ_PASSWD = "398hhgaihdliauhe893"
 
 $ADMIN_PASSWD = "sensuadminpass"
 
+$SENSU_VERSION = "0.20"
+
 $SENSU_CONFIG = "
 {
       \"rabbitmq\": {
@@ -55,7 +57,7 @@ $SENSU_CLIENT_CONFIG = "
 
 exec { "download-key-script" :
     path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
-    command => "curl http://sensuapp.org/docs/0.14/tools/ssl_certs.tar | tar x -C /tmp",
+    command => "curl http://sensuapp.org/docs/$SENSU_VERSION/tools/ssl_certs.tar | tar x -C /tmp",
     unless => "ls /tmp/ssl_certs",
 }
 
