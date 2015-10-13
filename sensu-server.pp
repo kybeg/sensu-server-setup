@@ -57,7 +57,7 @@ $SENSU_CLIENT_CONFIG = "
 
 exec { "download-key-script" :
     path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
-    command => "curl http://sensuapp.org/docs/$SENSU_VERSION/tools/ssl_certs.tar | tar x -C /tmp",
+    command => "curl https://sensuapp.org/docs/$SENSU_VERSION/tools/ssl_certs.tar | tar x -C /tmp",
     unless => "ls /tmp/ssl_certs",
 }
 
