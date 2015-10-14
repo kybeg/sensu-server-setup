@@ -58,7 +58,7 @@ $UCHIWA_CONFIG = "{
   \"sensu\": [
     {
       \"name\": \"Site 1\",
-      \"host\": "\localhost\",
+      \"host\": \"localhost\",
       \"port\": 4567,
       \"timeout\": 5
     }
