@@ -43,6 +43,7 @@ $SENSU_CONFIG = "
     }
 "
 
+
 $SENSU_CLIENT_CONFIG = "
 {
 \"client\":{
@@ -52,6 +53,22 @@ $SENSU_CLIENT_CONFIG = "
 }
 }
 "
+
+$UCHIWA_CONFIG = "{
+  \"sensu\": [
+    {
+      \"name\": \"Site 1\",
+      \"host\": "\localhost\",
+      \"port\": 4567,
+      \"timeout\": 5
+    }
+  ],
+  \"uchiwa\": {
+    \"host\": \"0.0.0.0\",
+    \"port\": 3000,
+    \"interval\": 5
+  }
+}"
 
 # SSL certificates
 
@@ -227,8 +244,16 @@ service { "redis-server" :
       ensure => present,
       require => Package['sensu'],
     }
+
+file { "/etc/sensu/uchiwa.json" :
+   ensure => present,
+   content => $UCHIWA_CONFIG,
+   require => Package['uchiwa'],
+   notify => Service['uchiwa'],
+}
+
     
    service { "uchiwa" :
       ensure => running,
-      require => Package['uchiwa'],
+      require => File['/etc/sensu/uchiwa.json'],
       }

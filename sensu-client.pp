@@ -6,9 +6,15 @@ $RABBITMQ_PASSWD = "398hhgaihdliauhe893"
 
 $ADMIN_PASSWD = "sensuadminpass"
 
-$SENSU_SERVER_IP = "INSERT_SENSU_SERVER_IP_HERE"
+$SENSU_SERVER_IP = ""
+
+$SENSU_VERSION = "0.20"
 
 ########################################################
+
+if $SENSU_SERVER_IP==undef {
+fail("You need to set the IP address of your sensu server in the SENSU_SERVER_IP variable")
+}
 
 
 $SENSU_CONFIG = "
