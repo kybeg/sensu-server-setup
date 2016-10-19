@@ -8,7 +8,7 @@ $ADMIN_PASSWD = "sensuadminpass"
 
 $SENSU_SERVER_IP = ""
 
-$SENSU_VERSION = "0.20"
+$SENSU_VERSION = "0.23"
 
 ########################################################
 
