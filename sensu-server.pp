@@ -5,7 +5,7 @@ $RABBITMQ_PASSWD = "398hhgaihdliauhe893"
 
 $ADMIN_PASSWD = "sensuadminpass"
 
-$SENSU_VERSION = "0.20"
+$SENSU_VERSION = "0.23"
 
 $SENSU_CONFIG = "
 {
@@ -103,7 +103,7 @@ file { "/etc/apt/sources.list.d/rabbitmq.list" :
 
 exec { "install-rabbit-repo-key" :
     path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
-    command => "curl http://www.rabbitmq.com/rabbitmq-signing-key-public.asc | apt-key add -; apt-get update",
+    command => "curl https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | apt-key add -; apt-get update",
     require => File["/etc/apt/sources.list.d/rabbitmq.list"],
     unless => "apt-key list | grep 'RabbitMQ Release Signing Key'",
     }
