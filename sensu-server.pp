@@ -179,14 +179,14 @@ service { "redis-server" :
 # SENSU
      exec { "add-sensu-repo-key" :
              path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
-             command => "curl http://repos.sensuapp.org/apt/pubkey.gpg | apt-key add - ",
+             command => "curl http://repositories.sensuapp.org/apt/pubkey.gpg | apt-key add - ",
              unless => "ls /etc/apt/sources.list.d/sensu.list",
 	     require => [Package['redis-server'],Exec['add-sensu-user-in-rabbitmq']],
      }
 
      exec { "add-sensu-repo" :
              path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
-             command => "echo ' deb     http://repos.sensuapp.org/apt sensu main' >> /etc/apt/sources.list.d/sensu.list ; apt-get update",
+             command => "echo ' deb     http://repositories.sensuapp.org/apt sensu main' >> /etc/apt/sources.list.d/sensu.list ; apt-get update",
              require => Exec["add-sensu-repo-key"],
              unless => "ls /etc/apt/sources.list.d/sensu.list"
      }
