@@ -66,7 +66,7 @@ service { "redis-server" :
 
      exec { "add-sensu-repo" :
              path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
-             command => "echo ' deb     http://repositories.sensuapp.org/apt sensu main' >> /etc/apt/sources.list.d/sensu.list ; apt-get update",
+             command => "echo 'deb     https://sensu.global.ssl.fastly.net/apt trusty main' >> /etc/apt/sources.list.d/sensu.list ; apt-get update",
              require => Exec["add-sensu-repo-key"],
              unless => "ls /etc/apt/sources.list.d/sensu.list"
      }
