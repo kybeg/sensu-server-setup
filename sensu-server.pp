@@ -1,11 +1,10 @@
-
 # VARIABLES
 
 $RABBITMQ_PASSWD = "398hhgaihdliauhe893"
 
 $ADMIN_PASSWD = "sensuadminpass"
 
-$SENSU_VERSION = "0.23"
+$SENSU_VERSION = "1.4"
 
 $SENSU_CONFIG = "
 {
@@ -74,19 +73,19 @@ $UCHIWA_CONFIG = "{
 
 exec { "download-key-script" :
     path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
-    command => "curl https://sensuapp.org/docs/$SENSU_VERSION/tools/ssl_certs.tar | tar x -C /tmp",
-    unless => "ls /tmp/ssl_certs",
+    command => "wget http://docs.sensu.io/sensu-core/1.4/files/sensu_ssl_tool.tar && tar -xvf sensu_ssl_tool.tar -C /tmp",
+    unless => "ls /tmp/sensu_ssl_tool",
 }
 
 exec { "create-keys" :
     path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
-    command => "/tmp/ssl_certs/ssl_certs.sh generate",
-    cwd => "/tmp/ssl_certs",
+    command => "/tmp/sensu_ssl_tool/ssl_certs.sh generate",
+    cwd => "/tmp/sensu_ssl_tool",
     require => Exec['download-key-script'],
     unless => "ls client && ls server",
     }
-    
-    
+
+
 # RABBIT
 
 package { "erlang-nox" :
@@ -107,7 +106,7 @@ exec { "install-rabbit-repo-key" :
     require => File["/etc/apt/sources.list.d/rabbitmq.list"],
     unless => "apt-key list | grep 'RabbitMQ Release Signing Key'",
     }
-    
+
 package { "rabbitmq-server" :
     ensure => latest,
     require => Exec["install-rabbit-repo-key"],
@@ -117,15 +116,15 @@ service { "rabbitmq-server" :
     ensure => running,
     require => Package['rabbitmq-server'],
     }
-    
+
 file { "/etc/rabbitmq/ssl" :
   ensure => directory,
-  require => Package['rabbitmq-server'],  
+  require => Package['rabbitmq-server'],
 }
 
 exec { "copy-keys" :
      path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
-     command => "cp /tmp/ssl_certs/server/cert.pem /etc/rabbitmq/ssl; cp /tmp/ssl_certs/server/key.pem /etc/rabbitmq/ssl; cp /tmp/ssl_certs/sensu_ca/cacert.pem /etc/rabbitmq/ssl",
+     command => "cp /tmp/sensu_ssl_tool/server/cert.pem /etc/rabbitmq/ssl; cp /tmp/sensu_ssl_tool/server/key.pem /etc/rabbitmq/ssl; cp /tmp/sensu_ssl_tool/sensu_ca/cacert.pem /etc/rabbitmq/ssl",
      unless => "ls /etc/rabbitmq/ssl/cacert.pem",
      require => File['/etc/rabbitmq/ssl'],
 }
@@ -135,11 +134,11 @@ $RABBITMQ_CONFIG = '
   {rabbit, [
      {ssl_listeners, [5671]},
      {ssl_options, [{cacertfile,"/etc/rabbitmq/ssl/cacert.pem"},
-	            {certfile,"/etc/rabbitmq/ssl/cert.pem"},
-		    {keyfile,"/etc/rabbitmq/ssl/key.pem"},
-		    {verify,verify_peer},
-		    {fail_if_no_peer_cert,true}]}
-	         ]}
+                    {certfile,"/etc/rabbitmq/ssl/cert.pem"},
+                    {keyfile,"/etc/rabbitmq/ssl/key.pem"},
+                    {verify,verify_peer},
+                    {fail_if_no_peer_cert,true}]}
+                 ]}
 ].
 '
 
@@ -181,7 +180,7 @@ service { "redis-server" :
              path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
              command => "curl http://repositories.sensuapp.org/apt/pubkey.gpg | apt-key add - ",
              unless => "ls /etc/apt/sources.list.d/sensu.list",
-	     require => [Package['redis-server'],Exec['add-sensu-user-in-rabbitmq']],
+             require => [Package['redis-server'],Exec['add-sensu-user-in-rabbitmq']],
      }
 
      exec { "add-sensu-repo" :
@@ -202,16 +201,16 @@ service { "redis-server" :
        require => Package['sensu'],
        notify => [ Service['sensu-server'],Service['sensu-api']]
     }
-    
+
     file { "/etc/sensu/ssl" :
       ensure => directory,
       mode => 644,
       require => Package['sensu'],
      }
-     
-    exec { "copy-sensu-keys" : 
+
+    exec { "copy-sensu-keys" :
      path => "/usr/bin/:/usr/sbin/:/usr/local/bin:/bin/:/sbin",
-     command => "cp /tmp/ssl_certs/client/cert.pem /etc/sensu/ssl/client_cert.pem; cp /tmp/ssl_certs/client/key.pem /etc/sensu/ssl/client_key.pem ",
+     command => "cp /tmp/sensu_ssl_tool/client/cert.pem /etc/sensu/ssl/client_cert.pem; cp /tmp/sensu_ssl_tool/client/key.pem /etc/sensu/ssl/client_key.pem ",
      unless => "ls /etc/sensu/ssl/client_key.pem && ls /etc/sensu/ssl/client_cert.pem",
      require => File['/etc/sensu/ssl'],
      }
@@ -220,12 +219,12 @@ service { "redis-server" :
       ensure => running,
       require => Exec['copy-sensu-keys'],
     }
-    
+
     service { "sensu-api" :
       ensure => running,
       require => Exec['copy-sensu-keys'],
     }
-    
+
    file { "/etc/sensu/conf.d/client.json":
      ensure => present,
      content => $SENSU_CLIENT_CONFIG,
@@ -233,13 +232,13 @@ service { "redis-server" :
      notify => Service['sensu-client'],
    }
 
-   
+
 
     service { "sensu-client" :
       ensure => running,
       require => Exec['copy-sensu-keys'],
       }
-    
+
     package { "uchiwa" :
       ensure => present,
       require => Package['sensu'],
@@ -252,7 +251,7 @@ file { "/etc/sensu/uchiwa.json" :
    notify => Service['uchiwa'],
 }
 
-    
+
    service { "uchiwa" :
       ensure => running,
       require => File['/etc/sensu/uchiwa.json'],
